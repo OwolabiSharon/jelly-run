@@ -9,22 +9,22 @@ using TMPro;
 public class characterMovement : MonoBehaviour
 {
     public static characterMovement instance;
-    [SerializeField] float runSpeed = 10f;
-    [SerializeField] float maxSpeed = 10f;
-    [SerializeField] float jumpHeight = 100f;
-    [SerializeField] float slide = 1f;
-    [SerializeField] float airSlam = 3f;
-    [SerializeField] float fallSpeed = 1f;
-    [SerializeField] float extraJumps = 1f;
-    [SerializeField] float airSlamPoints = 200f;
-    [SerializeField] float triggerPoints = 100f;
-    [SerializeField] float jerkForward = 1f;
-    [SerializeField] float balloonForce_x = 1f;
-    [SerializeField] float balloonForce_y = 1f;
-    [SerializeField] Transform playerHurt;
+    public float runSpeed = 10f;
+    public float maxSpeed = 10f;
+    public float jumpHeight = 100f;
+    public float slide = 1f;
+    public float airSlam = 3f;
+    public float fallSpeed = 1f;
+    public float extraJumps = 1f;
+    public float airSlamPoints = 200f;
+    public float triggerPoints = 100f;
+    public float jerkForward = 1f;
+    public float balloonForce_x = 1f;
+    public float balloonForce_y = 1f;
+    public Transform playerHurt;
     public Transform collectCoin;
-    [SerializeField] Transform balloon;
-    [SerializeField] Transform extraTriggerPoints;
+    public Transform balloon;
+    public Transform extraTriggerPoints;
     public audioManager audioManager;
     public TextMeshProUGUI plusPoints;
     
@@ -40,8 +40,8 @@ public class characterMovement : MonoBehaviour
     bool doubleJumped;
     bool bufferedSlide;
     float gravityScaleAtStart;
-    bool isAlive = true;
-    bool isInvinsible = false;
+    public bool isAlive = true;
+    public bool isInvinsible = false;
     public float hpBar = 100;
     public float totalPoints = 0;
     private InputAction action;
