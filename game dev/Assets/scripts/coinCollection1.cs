@@ -17,9 +17,9 @@ public class coinCollection : MonoBehaviour
             audioManager audioManager = other.gameObject.GetComponent<audioManager>();
             Transform particle = gameObject.transform.Find("particles");
             Vector3 particleSpawn = particle.position;
-            Instantiate(script.collectCoin,particleSpawn,Quaternion.identity);
+            //Instantiate(script.collectCoin,particleSpawn,Quaternion.identity);
             Destroy(gameObject);
-            script.SendMessage("gainCoinPoints", 500f);
+            //script.SendMessage("gainCoinPoints", 500f);
             audioManager.SendMessage("onCoinCollectionFunc");
         }
         

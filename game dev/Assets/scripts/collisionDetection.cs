@@ -19,43 +19,46 @@ public class collisionDetection : MonoBehaviour
     public float airSlamPoints = 200f;
     public float triggerPoints = 100f;
     public float jerkForward = 1f;
-    public float balloonForce_x = 1f;
-    public float balloonForce_y = 1f;
-    public Transform playerHurt;
-    public Transform collectCoin;
-    public Transform balloon;
-    public Transform extraTriggerPoints;
-    public audioManager audioManager;
-    public TextMeshProUGUI plusPoints;
+    public float hitForce_x = 1f;
+    public float hitForce_y = 1f;
+
+    // public Transform playerHurt;
+    // public Transform collectCoin;
+    // public Transform balloon;
+    // public Transform extraTriggerPoints;
+    // public audioManager audioManager;
+    // public TextMeshProUGUI plusPoints;
     
     
     Rigidbody2D myRigidbody;
     Animator myAnimator;
     AnimatorStateInfo stateInfo;
-    SpriteRenderer spriteRenderer;
-    Color originalColor;
+    // SpriteRenderer spriteRenderer;
+    // Color originalColor;
     bool isAlive = true;
     bool isInvinsible = false;
     public float hpBar = 100;
-    public float totalPoints = 0;
-    public TextMeshProUGUI hpText;
-    public TextMeshProUGUI pointText;
+     public float totalPoints = 0;
+    // public TextMeshProUGUI hpText;
+    // public TextMeshProUGUI pointText;
     public bool isPlaying = false;
+
+    float previousSpeed;
     private void awake()
     {
         characterMovement = GetComponent<characterMovement>();
         totalPoints = characterMovement.totalPoints;
         hpBar = characterMovement.hpBar;
         extraJumps = characterMovement.extraJumps;
-        plusPoints = characterMovement.plusPoints;
-        pointText = characterMovement.pointText;
-        audioManager = characterMovement.audioManager;
-        balloon = characterMovement.balloon;
+        //plusPoints = characterMovement.plusPoints;
+        // pointText = characterMovement.pointText;
+        // audioManager = characterMovement.audioManager;
+        // balloon = characterMovement.balloon;
         runSpeed = characterMovement.runSpeed;
         jumpHeight = characterMovement.jumpHeight;
         airSlamPoints = characterMovement.airSlamPoints;
         triggerPoints = characterMovement.triggerPoints;
-        extraTriggerPoints = characterMovement.extraTriggerPoints;
+        //extraTriggerPoints = characterMovement.extraTriggerPoints;
         isAlive = characterMovement.isAlive;
     }
 
@@ -89,87 +92,51 @@ public class collisionDetection : MonoBehaviour
         }
     }
     
-    private void gainPoints(float points, Vector3 objectPos)
-    {
-        plusPoints.gameObject.SetActive(true);
-        plusPoints.transform.position = objectPos;
-        totalPoints += points;
-        pointText.text = $"{totalPoints}";
+    // private void gainPoints(float points, Vector3 objectPos)
+    // {
+    //     plusPoints.gameObject.SetActive(true);
+    //     plusPoints.transform.position = objectPos;
+    //     totalPoints += points;
+    //     pointText.text = $"{totalPoints}";
         
-        Invoke("offtext", 0.3f);
-    }
-    public void gainCoinPoints(float points)
-    {
-        plusPoints.gameObject.SetActive(true);
-        plusPoints.transform.position = transform.position;
-        totalPoints += points;
-        pointText.text = $"{totalPoints}";
+    //     Invoke("offtext", 0.3f);
+    // }
+    // public void gainCoinPoints(float points)
+    // {
+    //     plusPoints.gameObject.SetActive(true);
+    //     plusPoints.transform.position = transform.position;
+    //     totalPoints += points;
+    //     pointText.text = $"{totalPoints}";
         
-        Invoke("offtext", 0.3f);
-    }
+    //     Invoke("offtext", 0.3f);
+    // }
 
-    void offtext()
-    {
-        plusPoints.gameObject.SetActive(false);
-    }
+    // void offtext()
+    // {
+    //     plusPoints.gameObject.SetActive(false);
+    // }
     void OnTriggerEnter2D(Collider2D other) {
-        //balloon
-        if (other.gameObject.tag == "balloon")
+        
+        if (other.gameObject.tag == "obstacle" && !isInvinsible)
         {
-            Transform particle = other.transform.Find("particles");
-            Vector3 particleSpawn = particle.position;
-            audioManager.SendMessage("OnBalloonBounceFunc");
-            Instantiate(balloon,particleSpawn,Quaternion.identity);
-            if (extraJumps == 0)
-            {
-                extraJumps += 1;
-            } 
-            myRigidbody.velocity = new Vector2 (runSpeed, jumpHeight); 
-            if (stateInfo.IsName("airSlam")) 
-            {
-                gainPoints(airSlamPoints,other.transform.position);
-            }
-            Destroy(other.gameObject);
+            myRigidbody.velocity = new Vector2 (hitForce_x, hitForce_y); 
+            previousSpeed = characterMovement.runSpeed;
+            characterMovement.runSpeed -= 10f;
+            StartCoroutine(Invinsibility());
+        }
+        else if (other.gameObject.tag == "boost" && !isInvinsible)
+        {
+            myRigidbody.velocity = new Vector2 (hitForce_x, hitForce_y); 
+            previousSpeed = characterMovement.runSpeed;
+            characterMovement.runSpeed += 10f;
+            StartCoroutine(Invinsibility());
+        }
+        else if (other.gameObject.tag == "instantDeath" && !isInvinsible)
+        {
+            myRigidbody.velocity = new Vector2 (hitForce_x, hitForce_y); 
+            Die();
         }
 
-        //damage causing interactables
-        if (other.gameObject.tag == "causeDamage" || other.gameObject.tag == "tree" )
-            {
-                Transform particle = other.transform.Find("particles");
-                Vector3 particleSpawn = particle.position;
-                
-                //other.GetComponentInChildren<ParticleSystem>().Play();
-                //partic.play()
-                if (stateInfo.IsName("airSlam") && other.gameObject.tag == "causeDamage") 
-                {
-                    gainPoints(airSlamPoints, other.transform.position);
-                    myAnimator.SetBool("jumping", true);
-                    myRigidbody.velocity = new Vector2 (runSpeed, jumpHeight); 
-                    if (extraJumps == 0)
-                    {
-                        extraJumps += 1;
-                    } 
-                    Instantiate(balloon,particleSpawn,Quaternion.identity);
-                    Destroy(other.gameObject);
-                    audioManager.SendMessage("onAirSlamFunc");
-                }else
-                {
-                    if (isInvinsible) { return; }
-                    myRigidbody.velocity = new Vector2 (myRigidbody.velocity.x, jerkForward); 
-                    myAnimator.SetTrigger("tookDamage");
-                    hpBar -= 20f;    
-                    hpText.text = $"{hpBar}/";
-                    Instantiate(playerHurt,transform.position,Quaternion.identity);
-                    //StartCoroutine(Invinsibility());
-                    audioManager.SendMessage("onDamageFunc");
-                }
-            }
-         if (other.gameObject.tag == "extraPoints" && stateInfo.IsName("slide"))
-         {
-            gainPoints(triggerPoints, other.transform.position);
-            audioManager.SendMessage("onAirSlamFunc");
-            Instantiate(extraTriggerPoints,transform.position,Quaternion.identity);
-         }
     }
 
     IEnumerator LoadNextLevel()
@@ -178,24 +145,30 @@ public class collisionDetection : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    void Die()
-    {
-        audioManager.SendMessage("onDeathFunc");
-        isAlive = false;
-        myRigidbody.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-        myAnimator.SetTrigger("death");
-        StartCoroutine(LoadNextLevel());
+    IEnumerator speedController()
+    {   
+        yield return new WaitForSecondsRealtime(5);
+        characterMovement.runSpeed = previousSpeed + 0.006f;
     }
 
-    // private IEnumerator Invinsibility()
-    // {
-    //     Color newColor = new Color(originalColor.r, originalColor.g, originalColor.b, originalColor.a * 0.5f);
-    //     spriteRenderer.color = newColor;
-    //     isInvinsible = true;
-    //     yield return new WaitForSeconds(0.5f);
-    //     spriteRenderer.color = originalColor;
-    //     isInvinsible = false;
-    //     //myRigidbody.velocity = new Vector2 (0f, (-1 * airSlam)); 
+    void Die()
+    {
+        //audioManager.SendMessage("onDeathFunc");
+        isAlive = false;
+        myRigidbody.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+       // myAnimator.SetTrigger("death");
+       // StartCoroutine(LoadNextLevel());
+    }
+
+    private IEnumerator Invinsibility()
+    {
+        // Color newColor = new Color(originalColor.r, originalColor.g, originalColor.b, originalColor.a * 0.5f);
+        // spriteRenderer.color = newColor;
+        isInvinsible = true;
+        yield return new WaitForSeconds(0.5f);
+        // spriteRenderer.color = originalColor;
+        isInvinsible = false;
+        //myRigidbody.velocity = new Vector2 (0f, (-1 * airSlam)); 
          
-    // }
+    }
 }

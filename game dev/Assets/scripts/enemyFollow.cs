@@ -2,24 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyFollow : MonoBehaviour
+public class enemyFollow : MonoBehaviour
 {
     public GameObject player;
-    public float maxSpeed = 10f;
-    public float acceleration = 0.1f;
+    public float maxSpeed = 20f;
+    public float acceleration = 0.5f;
 
-    private Rigidbody rb;
-    private float currentSpeed = 0f;
+   // private Rigidbody2D rb;
+    public float currentSpeed = 10f;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        //rb = GetComponent<Rigidbody2D>();
     }
 
     void FixedUpdate()
-    {
-        Vector3 direction = (player.transform.position - transform.position).normalized;
-        currentSpeed = Mathf.Clamp(currentSpeed + acceleration * Time.fixedDeltaTime, 0f, maxSpeed);
-        rb.velocity = direction * currentSpeed;
-    }
+{
+    Vector3 direction = (player.transform.position - transform.position).normalized;
+    currentSpeed = Mathf.Clamp(currentSpeed + acceleration * Time.fixedDeltaTime, 0f, maxSpeed);
+    transform.position += direction * currentSpeed * Time.fixedDeltaTime;
+}
 }
