@@ -9,7 +9,7 @@ public class prefabDeletion : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-       player = GameObject.FindWithTag("Player");
+       player = GameObject.Find("monster");
     }
 
     // Update is called once per frame
